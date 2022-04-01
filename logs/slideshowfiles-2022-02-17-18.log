@@ -1,0 +1,7 @@
+{"level":"info","mainUrl":"http://localhost:3000","message":"Opening main page","service":"shabshow","timestamp":"2022-02-17 18:45:26"}
+{"directory":"/Users/benjyb/Google Drive/sydney tower photos","level":"info","message":"Starting slideshow","service":"shabshow","timestamp":"2022-02-17 18:45:36"}
+{"directory":"/Users/benjyb/Google Drive/sydney tower photos","level":"info","message":"Num potential images: 12","service":"shabshow","timestamp":"2022-02-17 18:45:36"}
+{"isDev":true,"level":"info","message":"Opening slideshow window","service":"shabshow","timestamp":"2022-02-17 18:45:36","url":"http://localhost:3000/slideshow"}
+{"file":"/Users/benjyb/Google Drive/sydney tower photos/282888237.jpg","level":"info","message":"Displaying slideshow file","selectionIdx":8,"service":"shabshow","timestamp":"2022-02-17 18:45:37","totalFiles":12}
+{"file":"/Users/benjyb/Google Drive/sydney tower photos/282888247.jpg","level":"info","message":"Displaying slideshow file","selectionIdx":11,"service":"shabshow","timestamp":"2022-02-17 18:45:37","totalFiles":12}
+{"file":"/Users/benjyb/Google Drive/sydney tower photos/282888236.jpg","level":"info","message":"Displaying slideshow file","selectionIdx":7,"service":"shabshow","timestamp":"2022-02-17 18:45:43","totalFiles":12}

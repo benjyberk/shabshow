@@ -1,0 +1,12 @@
+[ignore]
+.*/resolver/.*
+
+[include]
+
+[libs]
+
+[lints]
+
+[options]
+
+[strict]
