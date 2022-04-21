@@ -131,6 +131,10 @@ function createWindow() {
     });
   });
 
+  ipcMain.on("report-error", async (event, arg) => {
+    logger.error("Error reported loading image", { arg });
+  });
+
   ipcMain.on("request-image", async (event, arg) => {
     if (potentialImages.length == 0) {
       dialog.showErrorBox(

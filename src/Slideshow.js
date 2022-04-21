@@ -23,6 +23,10 @@ function Slideshow(props: { onClose: () => void }): React$Node {
   };
 
   const requestImage = () => window.ipcRenderer.send("request-image");
+  const reportError = (event) => {
+    requestImage();
+    window.ipcRenderer.send("report-error", event.target.src);
+  };
 
   useEffect(() => {
     listener = (e: MessageEvent) => {
@@ -51,10 +55,15 @@ function Slideshow(props: { onClose: () => void }): React$Node {
         src={formattedSrc}
         style={{ maxWidth: "100%", maxHeight: "100%" }}
         onClick={closeWindow}
+        onError={reportError}
       />
     ) : null;
 
-  const spinner = <div className={"Spinner"}><CircularProgress size={80} /></div>;
+  const spinner = (
+    <div className={"Spinner"}>
+      <CircularProgress size={80} />
+    </div>
+  );
   const image = <div className={"Slideshow-bg"}>{imageDiv}</div>;
 
   return hasStarted ? image : spinner;

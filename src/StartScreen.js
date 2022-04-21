@@ -49,10 +49,7 @@ const StartSlideshowBtn = (props: {
 const ExitBtn = () => {
   return (
     <div>
-      <Button
-        variant="contained"
-        onClick={() => window.close()}
-      >
+      <Button variant="contained" onClick={() => window.close()}>
         Exit
       </Button>
     </div>
