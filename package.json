@@ -53,7 +53,8 @@
     "flow": "flow",
     "electron:package:mac": "npm run build && electron-builder -m -c.extraMetadata.main=build/main.js",
     "electron:package:win": "npm run build && electron-builder -w -c.extraMetadata.main=build/main.js",
-    "electron:package:linux": "npm run build && electron-builder -l -c.extraMetadata.main=build/main.js"
+    "electron:package:linux": "npm run build && electron-builder -l -c.extraMetadata.main=build/main.js",
+    "prettier": "prettier . --write"
   },
   "browserslist": {
     "production": [

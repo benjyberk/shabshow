@@ -10,6 +10,7 @@ function Slideshow(props: { onClose: () => void }): React$Node {
   const delay = Number.parseInt(rawDelay);
   const [imgSrc, setImgSrc] = useState<?string>(null);
   const [hasStarted, setHasStarted] = useState<boolean>(false);
+  const [hasError, setHasError] = useState<boolean>(false);
   let timer = useRef<?TimeoutID>(null);
   let listener = null;
 
@@ -23,9 +24,23 @@ function Slideshow(props: { onClose: () => void }): React$Node {
   };
 
   const requestImage = () => window.ipcRenderer.send("request-image");
-  const reportError = (event) => {
-    requestImage();
-    window.ipcRenderer.send("report-error", event.target.src);
+  const onLoad = () => {
+    setHasError(false);
+    timer.current = setTimeout(requestImage, delay);
+  };
+  const reportError = (event: SyntheticEvent<HTMLImageElement, Event>) => {
+    if (!hasError) {
+      setHasError(true);
+      if (timer.current !== null) {
+        clearTimeout(timer.current);
+      }
+      requestImage();
+    }
+    window.ipcRenderer.send(
+      "report-error",
+      event.currentTarget.src,
+      event.type
+    );
   };
 
   useEffect(() => {
@@ -37,7 +52,6 @@ function Slideshow(props: { onClose: () => void }): React$Node {
       if (e.data.type === "change-img" && typeof e.data.payload === "string") {
         const src: string = e.data.payload;
         setImgSrc(src);
-        timer.current = setTimeout(requestImage, delay);
       }
       if (e.data.type === "slideshow-ready") {
         setHasStarted(true);
@@ -56,6 +70,7 @@ function Slideshow(props: { onClose: () => void }): React$Node {
         style={{ maxWidth: "100%", maxHeight: "100%" }}
         onClick={closeWindow}
         onError={reportError}
+        onLoad={onLoad}
       />
     ) : null;
 
