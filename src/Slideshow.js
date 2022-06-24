@@ -10,7 +10,6 @@ function Slideshow(props: { onClose: () => void }): React$Node {
   const delay = Number.parseInt(rawDelay);
   const [imgSrc, setImgSrc] = useState<?string>(null);
   const [hasStarted, setHasStarted] = useState<boolean>(false);
-  const [hasError, setHasError] = useState<boolean>(false);
   let timer = useRef<?TimeoutID>(null);
   let listener = null;
 
@@ -25,17 +24,16 @@ function Slideshow(props: { onClose: () => void }): React$Node {
 
   const requestImage = () => window.ipcRenderer.send("request-image");
   const onLoad = () => {
-    setHasError(false);
+    if (timer.current !== null) {
+      clearTimeout(timer.current);
+    }
     timer.current = setTimeout(requestImage, delay);
   };
   const reportError = (event: SyntheticEvent<HTMLImageElement, Event>) => {
-    if (!hasError) {
-      setHasError(true);
-      if (timer.current !== null) {
-        clearTimeout(timer.current);
-      }
-      requestImage();
+    if (timer.current !== null) {
+      clearTimeout(timer.current);
     }
+    requestImage();
     window.ipcRenderer.send(
       "report-error",
       event.currentTarget.src,

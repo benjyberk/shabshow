@@ -9,6 +9,6 @@ process.once("loaded", () => {
   contextBridge.exposeInMainWorld("ipcRenderer", ipcRenderer);
   ipcRenderer.on("message", (event, data) => {
     window.postMessage(data, "*");
-    console.log("passing on message " + data);
+    console.log("passing on message " + JSON.stringify(data));
   });
 });

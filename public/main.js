@@ -9,6 +9,8 @@ const { resolve } = require("path");
 const fsSync = require("fs");
 const fs = require("fs").promises;
 const { createLogger, format, transports } = require("winston");
+const FileType = require("file-type");
+
 require("winston-daily-rotate-file");
 
 const APP_DATA =
@@ -16,6 +18,7 @@ const APP_DATA =
   (process.platform == "darwin"
     ? process.env.HOME + "/Library/Preferences"
     : process.env.HOME + "/.local/share");
+
 const LOG_ROOT = path.join(APP_DATA, "Shabshow", "logs");
 let potentialImages = [];
 
@@ -147,18 +150,44 @@ function createWindow() {
       return;
     }
 
-    const selectionIdx = Math.floor(Math.random() * potentialImages.length);
-    const file = potentialImages[selectionIdx];
+    let shouldShow = 0;
+    let selectionIdx = 0;
+    let file = "";
+    while (shouldShow < 20) {
+      selectionIdx = Math.floor(Math.random() * potentialImages.length);
+      file = potentialImages[selectionIdx];
+      const fileInfo = await FileType.fromFile(file);
+      if (fileInfo && fileInfo.mime && fileInfo.mime.startsWith("image")) {
+        logger.info(fileInfo);
+        break;
+      } else {
+        logger.info(
+          "skipping file due to bad mime type",
+          { fileInfo },
+          { file }
+        );
+        shouldShow++;
+      }
+    }
+
     logger.info("Displaying slideshow file", {
       file,
       selectionIdx,
       totalFiles: potentialImages.length,
     });
+
     if (win !== null) {
-      win.webContents.send("message", {
-        type: "change-img",
-        payload: file,
-      });
+      try {
+        win.webContents.send("message", {
+          type: "change-img",
+          payload: file,
+        });
+      } catch (e) {
+        logger.error("error sending file", {
+          error: e,
+          file: file,
+        });
+      }
     } else {
       logger.error("Window is null");
     }
