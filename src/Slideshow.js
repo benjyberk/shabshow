@@ -11,6 +11,7 @@ function Slideshow(props: { onClose: () => void }): React$Node {
   const [imgSrc, setImgSrc] = useState<?string>(null);
   const [hasStarted, setHasStarted] = useState<boolean>(false);
   let timer = useRef<?TimeoutID>(null);
+  const imgSrcRef = useRef<?string>(imgSrc);
   let listener = null;
 
   const closeWindow = () => {
@@ -48,8 +49,16 @@ function Slideshow(props: { onClose: () => void }): React$Node {
       }
 
       if (e.data.type === "change-img" && typeof e.data.payload === "string") {
-        const src: string = e.data.payload;
-        setImgSrc(src);
+        if (e.data.payload !== imgSrcRef.current) {
+          const src: string = e.data.payload;
+          setImgSrc(src);
+          imgSrcRef.current = src;
+        } else {
+          if (timer.current !== null) {
+            clearTimeout(timer.current);
+          }
+          requestImage();
+        }
       }
       if (e.data.type === "slideshow-ready") {
         setHasStarted(true);
@@ -60,6 +69,7 @@ function Slideshow(props: { onClose: () => void }): React$Node {
     window.addEventListener("message", listener);
     return closeWindow;
   }, []);
+
   const formattedSrc = "atom://" + (imgSrc ?? "");
   const imageDiv =
     imgSrc !== null ? (

@@ -76,8 +76,22 @@ function createWindow() {
   logger.info("Opening main page", { mainUrl });
 
   protocol.registerFileProtocol("atom", (request, callback) => {
-    const url = request.url.substr(7);
-    callback({ path: decodeURI(url) });
+    let url = request.url.replace(/^atom:\/\//, "");
+    let decoded = '';
+    try {
+      if (Math.floor(Math.random() * 2) === 0) {
+        throw new Error();
+      }
+      decoded = decodeURI(url);
+    } catch (e) {
+      logger.error(
+        "sending null due to decode failure",
+        { url },
+      );
+      callback({error: -2});
+      return;
+    }
+    callback({ path: decoded });
   });
 
   ipcMain.on("select-dir", async (event, arg) => {
@@ -157,6 +171,17 @@ function createWindow() {
       selectionIdx = Math.floor(Math.random() * potentialImages.length);
       file = potentialImages[selectionIdx];
       const fileInfo = await FileType.fromFile(file);
+
+      try {
+        decodeURI(file);
+      } catch (e) {
+        logger.info(
+          "skipping file due to decode failure",
+          { fileInfo },
+          { file }
+        );
+      }
+
       if (fileInfo && fileInfo.mime && fileInfo.mime.startsWith("image")) {
         logger.info(fileInfo);
         break;
