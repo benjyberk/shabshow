@@ -11,6 +11,7 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Checkbox from "@mui/material/Checkbox";
+import Box from "@mui/material/Box";
 
 export const DEFAULT_DELAY = "5000";
 
@@ -102,6 +103,8 @@ function StartScreen(props: {
       },
     },
   });
+  const NO_WARRANTY_TEXT =
+    "No Warranties. EXCEPT AS OTHERWISE EXPRESSLY SET FORTH HEREIN, THE PARTIES MAKE NO REPRESENTATIONS AND EXTEND NO WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION, THERE ARE NO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR NON-MISAPPROPRIATION OF THIRD PARTY INTELLECTUAL PROPERTY RIGHTS, ARE MADE OR GIVEN BY OR ON BEHALF OF A PARTY. EACH PARTY MAKES NO WARRANTIES, EXPRESS OR IMPLIED, REGARDING THE PATENTABILITY, VALIDITY OR ENFORCEABILITY OF ANY LICENSED PATENT RIGHTS. EXCEPT AS EXPRESSLY STATED IN THIS AGREEMENT, ALL REPRESENTATIONS AND WARRANTIES, WHETHER ARISING BY OPERATION OF LAW OR OTHERWISE, ARE HEREBY EXPRESSLY EXCLUDED";
 
   const onToggleShouldShowLastSeen = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -121,10 +124,24 @@ function StartScreen(props: {
     textAlign: "center",
     verticalAlign: "middle",
     color: theme.palette.text.primary,
+    fontSize: "1.5rem",
   }));
 
   return (
     <ThemeProvider theme={theme}>
+      <Box position="absolute" top="0px" left="0px" maxWidth="350px">
+        <Typography sx={{ mb: 8, justifyContent: null }}>
+          <Item sx={{ fontSize: "2rem" }}>Warranty Information</Item>
+          <marquee
+            behavior="scroll"
+            direction="up"
+            style={{ height: "200px" }}
+            scrollamount="5"
+          >
+            <Item sx={{ fontSize: "1rem" }}>{NO_WARRANTY_TEXT}</Item>
+          </marquee>
+        </Typography>
+      </Box>
       <div className="App-header">
         <Typography variant="h1" sx={{ mb: 8 }}>
           <div className="App-title">Shabshow</div>
