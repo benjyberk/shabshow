@@ -1,8 +1,8 @@
 {
   // enable globally (here: format on save)
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   // enable per-language (here: Prettier as formatter)
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   }
 }

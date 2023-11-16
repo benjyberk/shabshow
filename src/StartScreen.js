@@ -10,6 +10,7 @@ import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import Checkbox from "@mui/material/Checkbox";
 
 export const DEFAULT_DELAY = "5000";
 
@@ -87,6 +88,9 @@ function StartScreen(props: {
   onClickStart: () => void,
   imagesFolder: ?string,
 }): React$Node {
+  const [showLastSeen, setShowLastSeen] = useState<boolean>(
+    localStorage.getItem("shouldShowLastSeen") === "true"
+  );
   const theme = createTheme({
     palette: {
       mode: "dark",
@@ -98,6 +102,15 @@ function StartScreen(props: {
       },
     },
   });
+
+  const onToggleShouldShowLastSeen = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newVal = event.target.checked;
+    localStorage.setItem("shouldShowLastSeen", newVal);
+    setShowLastSeen(newVal);
+  };
+
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
     ...theme.typography.body2,
@@ -127,6 +140,15 @@ function StartScreen(props: {
             <Item>{"Select delay"}</Item>
             <Item>
               <DelaySlider />
+            </Item>
+          </Stack>
+          <Stack direction={"row"} spacing={2}>
+            <Item>
+              <Item>{"Show Last Seen Time"}</Item>
+              <Checkbox
+                onChange={onToggleShouldShowLastSeen}
+                checked={showLastSeen}
+              />
             </Item>
           </Stack>
           <Stack direction={"row"} spacing={2} justifyContent="center">

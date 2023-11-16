@@ -33,6 +33,7 @@
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
+    "dayjs": "^1.11.10",
     "electron-is-dev": "^2.0.0",
     "file-type": "^16.5.3",
     "flow-bin": "^0.171.0",

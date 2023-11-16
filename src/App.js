@@ -22,6 +22,7 @@ function App(): React$Node {
       : HashRouter;
 
   const [showSlideshow, setShowSlideshow] = useState<boolean>(false);
+  const [showKey, setShowKey] = useState<number>(0);
   useEffect(() => {
     document.title = "Shabshow";
   }, []);
@@ -50,13 +51,14 @@ function App(): React$Node {
 
   const startSlideshow = () => {
     window.ipcRenderer.send("start-slideshow", imagesFolder);
+    setShowKey(showKey + 1);
     setShowSlideshow(true);
   };
 
   console.log("### ENVIRONMENT ###");
   console.log(process.env.NODE_ENV);
   return showSlideshow ? (
-    <Slideshow onClose={() => setShowSlideshow(false)} />
+    <Slideshow onClose={() => setShowSlideshow(false)} key={showKey} />
   ) : (
     <StartScreen imagesFolder={imagesFolder} onClickStart={startSlideshow} />
   );

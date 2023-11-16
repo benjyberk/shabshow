@@ -20,7 +20,10 @@ const APP_DATA =
     : process.env.HOME + "/.local/share");
 
 const LOG_ROOT = path.join(APP_DATA, "Shabshow", "logs");
+const SEEN_HISTORY = path.join(LOG_ROOT, "seen_history.log");
+
 let potentialImages = [];
+let seenHistory = {};
 
 if (!fsSync.existsSync(LOG_ROOT)) {
   fsSync.mkdirSync(LOG_ROOT, { recursive: true });
@@ -73,22 +76,28 @@ function createWindow() {
     ? "http://localhost:3000"
     : `file://${path.join(__dirname, "../build/index.html")}`;
   win.loadURL(mainUrl);
+  win.on("close", (event) => {
+    fsSync.writeFileSync(SEEN_HISTORY, JSON.stringify(seenHistory));
+  });
+
+  if (fsSync.existsSync(SEEN_HISTORY)) {
+    try {
+      seenHistory = JSON.parse(fsSync.readFileSync(SEEN_HISTORY));
+    } catch (e) {
+      logger.error("couldn't read seen history file", { e });
+    }
+  }
+
   logger.info("Opening main page", { mainUrl });
 
   protocol.registerFileProtocol("atom", (request, callback) => {
     let url = request.url.replace(/^atom:\/\//, "");
-    let decoded = '';
+    let decoded = "";
     try {
-      if (Math.floor(Math.random() * 2) === 0) {
-        throw new Error();
-      }
       decoded = decodeURI(url);
     } catch (e) {
-      logger.error(
-        "sending null due to decode failure",
-        { url },
-      );
-      callback({error: -2});
+      logger.error("sending null due to decode failure", { url });
+      callback({ error: -2 });
       return;
     }
     callback({ path: decoded });
@@ -152,6 +161,10 @@ function createWindow() {
     logger.error("Error reported loading image", { arg });
   });
 
+  ipcMain.on("mark-seen", async (event, arg) => {
+    seenHistory[arg] = Date.now();
+  });
+
   ipcMain.on("request-image", async (event, arg) => {
     if (potentialImages.length == 0) {
       dialog.showErrorBox(
@@ -195,10 +208,14 @@ function createWindow() {
       }
     }
 
+    const lastSeen = file in seenHistory ? seenHistory[file] : 0;
+    const lastSeenDelta = Date.now() - lastSeen;
     logger.info("Displaying slideshow file", {
       file,
       selectionIdx,
       totalFiles: potentialImages.length,
+      lastSeen: lastSeen,
+      lastSeenDelta: lastSeenDelta,
     });
 
     if (win !== null) {
@@ -206,6 +223,7 @@ function createWindow() {
         win.webContents.send("message", {
           type: "change-img",
           payload: file,
+          lastSeen: lastSeen,
         });
       } catch (e) {
         logger.error("error sending file", {
