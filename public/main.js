@@ -21,9 +21,13 @@ const APP_DATA =
 
 const LOG_ROOT = path.join(APP_DATA, "Shabshow", "logs");
 const SEEN_HISTORY = path.join(LOG_ROOT, "seen_history.log");
+// Guard against infinite loop, try this number of times before giving up
+// and sending a known-bad image
+const LOOP_GUARD = 250;
 
 let potentialImages = [];
 let seenHistory = {};
+let nextPhotoIdx = 0;
 
 if (!fsSync.existsSync(LOG_ROOT)) {
   fsSync.mkdirSync(LOG_ROOT, { recursive: true });
@@ -178,10 +182,16 @@ function createWindow() {
     }
 
     let shouldShow = 0;
-    let selectionIdx = 0;
+    let selectionIdx = nextPhotoIdx;
     let file = "";
-    while (shouldShow < 20) {
-      selectionIdx = Math.floor(Math.random() * potentialImages.length);
+    while (shouldShow < LOOP_GUARD) {
+      if (selectionIdx >= potentialImages.length) {
+        logger.info("shuffling array", { selectionIdx, length: potentialImages.length });
+        selectionIdx = 0;
+        nextPhotoIdx = 0;
+        potentialImages = shuffleArray(potentialImages);
+      }
+
       file = potentialImages[selectionIdx];
       const fileInfo = await FileType.fromFile(file);
 
@@ -206,7 +216,10 @@ function createWindow() {
         );
         shouldShow++;
       }
+      selectionIdx++;
     }
+
+    nextPhotoIdx = selectionIdx + 1;
 
     const lastSeen = file in seenHistory ? seenHistory[file] : 0;
     const lastSeenDelta = Date.now() - lastSeen;
@@ -263,6 +276,11 @@ app.on("activate", () => {
 });
 
 async function getFiles(dir) {
+  const files = await getFilesImpl(dir);
+  return shuffleArray(files);
+}
+
+async function getFilesImpl(dir) {
   const imageExts = [".jpeg", ".jpg", ".png", ".webp", ".svg", ".bmp", ".gif"];
   const dirents = await fs.readdir(dir);
   const files = await Promise.all(
@@ -271,7 +289,7 @@ async function getFiles(dir) {
         const resolved = resolve(dir, dirent);
         const stat = await fs.stat(resolved);
         if (stat.isDirectory()) {
-          return getFiles(resolved);
+          return getFilesImpl(resolved);
         } else {
           const ext = path.extname(dirent).toLowerCase();
           return imageExts.includes(ext) ? resolved : null;
@@ -284,4 +302,15 @@ async function getFiles(dir) {
     })
   );
   return Array.prototype.concat(...files).filter(Boolean);
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+
+  return arr;
 }
